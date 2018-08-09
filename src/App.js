@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Route, Link } from 'react-router-dom';
 import './App.css';
-import Index from './components/Index.js';
+import Home from './components/Home.js';
 import Active from './components/Active.js';
 import Historical from './components/Historical.js';
 
@@ -20,7 +20,7 @@ class App extends Component {
                 <h1>To-Do KaBoom </h1>
               </header>
               <main>
-                <Route exact path="/" component={Index} />
+                <Route exact path="/" component={Home} />
                 <Route path="/active" component={Active} />
                 <Route path="/historical" component={Historical} />
               </main>

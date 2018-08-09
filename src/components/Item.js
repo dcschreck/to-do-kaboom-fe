@@ -18,13 +18,17 @@ class Item extends Component {
         });
     }
 
+    componentWillUnmount() {
+        this.itemsRef.off('child_added');
+    }
+
     handleChange(e) {
         this.setState({ newItemName: e.target.value })
     }
 
     createItem(e) {
         const newItem = this.state.newItemName;
-        this.setState({ items: [...this.state.items, newItem], newItemName: ''});
+        this.setState({ items: this.state.items.concat(newItem), newItemName: ''});
         this.itemsRef.push({
             name: newItem
         });
