@@ -5,7 +5,7 @@ class Item extends Component {
         super(props);
         this.state = {
             items: [],
-            newItemName:''
+            newItemContent:''
         };
         this.itemsRef = this.props.firebase.database().ref('items');
     }
@@ -15,6 +15,7 @@ class Item extends Component {
             const item = snapshot.val();
             item.key = snapshot.key;
             this.setState({ items: this.state.items.concat( item ) });
+            console.log(snapshot.val());
         });
     }
 
@@ -23,14 +24,15 @@ class Item extends Component {
     }
 
     handleChange(e) {
-        this.setState({ newItemName: e.target.value })
+        this.setState({ newItemContent: e.target.value })
     }
 
     createItem(e) {
-        const newItem = this.state.newItemName;
-        this.setState({ items: this.state.items.concat(newItem), newItemName: ''});
+        e.preventDefault();
+        const newItem = this.state.newItemContent;
+        this.setState({ items: this.state.items.concat(newItem), newItemContent: ''});
         this.itemsRef.push({
-            name: newItem
+            content: newItem,
         });
     }
 
@@ -38,13 +40,13 @@ class Item extends Component {
         return (
             <section>
                 {this.state.items.map(item =>
-                    <div key={item.key}>
-                        {item.name}
+                    <div key={ item.key }>
+                        { item.content }
                         <input type="checkbox" />
                     </div>
                 )}
                 <form onSubmit={ (e) => this.createItem(e) }>
-                    <input type="text" value={ this.state.newItemName } onChange={ (e) => this.handleChange(e) }/>
+                    <input type="text" value={ this.state.newItemContent } onChange={ (e) => this.handleChange(e) }/>
                     <input type="submit"/>
                 </form>
             </section>
