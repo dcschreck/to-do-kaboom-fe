@@ -5,6 +5,7 @@ class Item extends Component {
         super(props);
         this.state = {
             items: [],
+            isCompleted: false,
             newItemContent:''
         };
         this.itemsRef = this.props.firebase.database().ref('items');
@@ -15,7 +16,6 @@ class Item extends Component {
             const item = snapshot.val();
             item.key = snapshot.key;
             this.setState({ items: this.state.items.concat( item ) });
-            console.log(snapshot.val());
         });
     }
 
@@ -30,19 +30,26 @@ class Item extends Component {
     createItem(e) {
         e.preventDefault();
         const newItem = this.state.newItemContent;
-        this.setState({ items: this.state.items.concat(newItem), newItemContent: ''});
         this.itemsRef.push({
             content: newItem,
-        });
+            isCompleted: false
+        })
+        this.setState({ newItemContent: '' });
+    }
+
+    markComplete(item) {
+        this.itemsRef.update({
+            [item.key]: { isCompleted: !item.isCompleted, content: item.content }
+        })
     }
 
     render() {
         return (
             <section>
-                {this.state.items.map(item =>
-                    <div key={ item.key }>
+                {this.state.items.map( (item, index) =>
+                    <div key={ index }>
                         { item.content }
-                        <input type="checkbox" />
+                        <input type="checkbox" onChange={ () => this.markComplete(item)} />
                     </div>
                 )}
                 <form onSubmit={ (e) => this.createItem(e) }>
