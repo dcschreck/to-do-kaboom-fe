@@ -5,6 +5,7 @@ class Item extends Component {
         super(props);
         this.state = {
             items: [],
+            activeTodos: [],
             isCompleted: false,
             newItemContent:''
         };
@@ -15,7 +16,9 @@ class Item extends Component {
         this.itemsRef.on('child_added', snapshot => {
             const item = snapshot.val();
             item.key = snapshot.key;
-            this.setState({ items: this.state.items.concat( item ) });
+            this.setState({ items: this.state.items.concat( item ) }, () => {
+                this.displayActive();
+            });
         });
     }
 
@@ -27,28 +30,58 @@ class Item extends Component {
         this.setState({ newItemContent: e.target.value })
     }
 
+    dateDiffInDays(a,b) {
+        const _MS_PER_DAY = 1000 * 60 * 60 * 24;
+        const utc1 = Date.UTC(a.getFullYear(), a.getMonth(), a.getDate());
+        const utc2 = Date.UTC(b.getFullYear(), b.getMonth(), b.getDate());
+        const timeRemaining = Math.floor((utc2 - utc1) / _MS_PER_DAY);
+        return (7 - timeRemaining);
+    }
+
     createItem(e) {
         e.preventDefault();
         const newItem = this.state.newItemContent;
+        const createdDate = Date(this.props.firebase.database.ServerValue.TIMESTAMP);
+
         this.itemsRef.push({
             content: newItem,
-            isCompleted: false
+            timeRemaining: this.dateDiffInDays(new Date(createdDate), new Date()),
+            isCompleted: false,
+            created: createdDate,
         })
         this.setState({ newItemContent: '' });
     }
 
     markComplete(item) {
         this.itemsRef.update({
-            [item.key]: { isCompleted: !item.isCompleted, content: item.content }
+            [item.key]: {
+                isCompleted: !item.isCompleted,
+                content: item.content,
+                created: item.created
+            }
         })
+        this.displayActive();
+    }
+
+    displayActive() {
+        // if (this.props.isActive) {
+            const activeItems = this.state.items.filter(item => item.isCompleted === false);
+            const activeNonExpired = activeItems.filter(item => item.timeRemaining > 0);
+            this.setState({ activeTodos: activeNonExpired });
+        // } else {
+        //     const
+        // }
+
+
     }
 
     render() {
         return (
             <section>
-                {this.state.items.map( (item, index) =>
+                {this.state.activeTodos.map( (item, index) =>
                     <div key={ index }>
                         { item.content }
+                        { this.dateDiffInDays(new Date(item.created), new Date()) }
                         <input type="checkbox" onChange={ () => this.markComplete(item)} />
                     </div>
                 )}

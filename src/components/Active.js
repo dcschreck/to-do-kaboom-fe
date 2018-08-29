@@ -17,10 +17,6 @@ firebase.initializeApp(config);
 // </script>
 
 class Active extends Component {
-    constructor(props) {
-        super(props);
-    }
-
     render() {
         return (
             <section className="active">
