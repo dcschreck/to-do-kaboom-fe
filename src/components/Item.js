@@ -66,7 +66,7 @@ class Item extends Component {
     displayActive() {
         // if (this.props.isActive) {
             const activeItems = this.state.items.filter(item => item.isCompleted === false);
-            const activeNonExpired = activeItems.filter(item => item.timeRemaining > 0);
+            const activeNonExpired = activeItems.filter(item => (this.dateDiffInDays(new Date(item.created), new Date())) > 0);
             this.setState({ activeTodos: activeNonExpired });
         // } else {
         //     const
