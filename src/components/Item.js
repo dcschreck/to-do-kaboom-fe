@@ -5,7 +5,7 @@ class Item extends Component {
         super(props);
         this.state = {
             items: [],
-            activeTodos: [],
+            todos: [],
             isCompleted: false,
             newItemContent:''
         };
@@ -64,21 +64,19 @@ class Item extends Component {
     }
 
     displayActive() {
-        // if (this.props.isActive) {
-            const activeItems = this.state.items.filter(item => item.isCompleted === false);
-            const activeNonExpired = activeItems.filter(item => (this.dateDiffInDays(new Date(item.created), new Date())) > 0);
-            this.setState({ activeTodos: activeNonExpired });
-        // } else {
-        //     const
-        // }
-
-
+        if (this.props.isActive) {
+            const activeItems = this.state.items.filter(item => (item.isCompleted === false && ((this.dateDiffInDays(new Date(item.created), new Date())) > 0)));
+            this.setState({ todos: activeItems });
+        } else {
+            const completedItems = this.state.items.filter(item => (item.isCompleted === true || ((this.dateDiffInDays(new Date(item.created), new Date())) <= 0)));
+            this.setState({ todos: completedItems });
+        }
     }
 
     render() {
         return (
             <section>
-                {this.state.activeTodos.map( (item, index) =>
+                {this.state.todos.map( (item, index) =>
                     <div key={ index }>
                         { item.content }
                         { this.dateDiffInDays(new Date(item.created), new Date()) }

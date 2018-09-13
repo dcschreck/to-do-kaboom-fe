@@ -4,6 +4,21 @@ import './App.css';
 import Home from './components/Home.js';
 import Active from './components/Active.js';
 import Historical from './components/Historical.js';
+import * as firebase from 'firebase';
+
+// <script src="https://www.gstatic.com/firebasejs/5.3.1/firebase.js"></script>
+// <script>
+// Initialize Firebase
+var config = {
+    apiKey: "AIzaSyCRLwG9vGt1X-vVI9F_k-ntLalvb67V5po",
+    authDomain: "to-do-kaboom-fe.firebaseapp.com",
+    databaseURL: "https://to-do-kaboom-fe.firebaseio.com",
+    projectId: "to-do-kaboom-fe",
+    storageBucket: "to-do-kaboom-fe.appspot.com",
+    messagingSenderId: "605120402420"
+};
+firebase.initializeApp(config);
+// </script>
 
 class App extends Component {
     render() {
@@ -21,8 +36,8 @@ class App extends Component {
               </header>
               <main>
                 <Route exact path="/" component={Home} />
-                <Route path="/active" component={Active} />
-                <Route path="/historical" component={Historical} />
+                <Route path="/active" render={(props) => <Active {...props} firebase={firebase}/> } />
+                <Route path="/historical" render={(props) => <Historical {...props} firebase={firebase}/> } />
               </main>
           </div>
         );
