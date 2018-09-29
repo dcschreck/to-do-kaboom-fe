@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import Priority from './Priority.js';
 
 class Item extends Component {
     constructor(props) {
@@ -7,7 +8,8 @@ class Item extends Component {
             items: [],
             todos: [],
             isCompleted: false,
-            newItemContent:''
+            newItemContent:'',
+            priority: "0"
         };
         this.itemsRef = this.props.firebase.database().ref('items');
     }
@@ -30,6 +32,10 @@ class Item extends Component {
         this.setState({ newItemContent: e.target.value })
     }
 
+    handlePriority(e) {
+        this.setState({ priority: e.target.value })
+    }
+
     dateDiffInDays(a,b) {
         const _MS_PER_DAY = 1000 * 60 * 60 * 24;
         const utc1 = Date.UTC(a.getFullYear(), a.getMonth(), a.getDate());
@@ -48,6 +54,7 @@ class Item extends Component {
             timeRemaining: this.dateDiffInDays(new Date(createdDate), new Date()),
             isCompleted: false,
             created: createdDate,
+            priority: this.state.priority
         })
         this.setState({ newItemContent: '' });
     }
@@ -65,10 +72,11 @@ class Item extends Component {
 
     displayActive() {
         if (this.props.isActive) {
-            const activeItems = this.state.items.filter(item => (item.isCompleted === false && ((this.dateDiffInDays(new Date(item.created), new Date())) > 0)));
+            const activeItems = this.state.items.filter(item => (item.isCompleted === false && ((this.dateDiffInDays(new Date(item.created), new Date())) > 0))).sort((a,b) => b.priority - a.priority);
+
             this.setState({ todos: activeItems });
         } else {
-            const completedItems = this.state.items.filter(item => (item.isCompleted === true || ((this.dateDiffInDays(new Date(item.created), new Date())) <= 0)));
+            const completedItems = this.state.items.filter(item => (item.isCompleted === true || ((this.dateDiffInDays(new Date(item.created), new Date())) <= 0))).sort((a,b) => b.priority - a.priority);
             this.setState({ todos: completedItems });
         }
     }
@@ -80,11 +88,18 @@ class Item extends Component {
                     <div key={ index }>
                         { item.content }
                         { this.dateDiffInDays(new Date(item.created), new Date()) }
+                        { item.priority == "2" ? <div> High </div> : item.priority == "1" ? <div> Med </div> : <div> Low </div> }
                         <input type="checkbox" onChange={ () => this.markComplete(item)} />
                     </div>
                 )}
+
                 <form onSubmit={ (e) => this.createItem(e) }>
                     <input type="text" value={ this.state.newItemContent } onChange={ (e) => this.handleChange(e) }/>
+                    <select onChange={ (e) => this.handlePriority(e) }>
+                        <option value="0">Low</option>
+                        <option value="1">Medium</option>
+                        <option value="2">High</option>
+                    </select>
                     <input type="submit"/>
                 </form>
             </section>
